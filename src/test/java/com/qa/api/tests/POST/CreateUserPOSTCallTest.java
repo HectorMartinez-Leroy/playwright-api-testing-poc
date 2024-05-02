@@ -1,4 +1,4 @@
-package com.qa.api.tests;
+package com.qa.api.tests.POST;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -35,7 +35,6 @@ public class CreateUserPOSTCallTest {
 
         data.put("name", "morpheus");
         data.put("job", "leader");
-
 
         APIResponse createApiResponse = requestContext.post("https://reqres.in/api/users",
                 RequestOptions.create()
