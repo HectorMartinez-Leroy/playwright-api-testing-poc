@@ -20,7 +20,6 @@
       <groupId>org.testng</groupId>
       <artifactId>testng</artifactId>
       <version>7.10.1</version>
-      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>com.microsoft.playwright</groupId>
@@ -47,7 +46,12 @@
       <groupId>io.cucumber</groupId>
       <artifactId>cucumber-junit</artifactId>
       <version>7.17.0</version>
-      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-api</artifactId>
+      <version>5.10.2</version>
+      <scope>java</scope>
     </dependency>
   </dependencies>
   <build>
