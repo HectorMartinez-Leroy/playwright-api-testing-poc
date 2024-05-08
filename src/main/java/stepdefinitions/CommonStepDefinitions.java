@@ -1,5 +1,7 @@
 package stepdefinitions;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microsoft.playwright.APIRequest;
 import com.microsoft.playwright.APIRequestContext;
 import com.microsoft.playwright.APIResponse;
@@ -17,6 +19,7 @@ import io.cucumber.java.en.When;
 import org.junit.jupiter.api.Assertions;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 
 public class CommonStepDefinitions {
@@ -26,7 +29,6 @@ public class CommonStepDefinitions {
     APIResponse apiResponse;
     RequestOptions requestOptions;
     String url = "";
-    byte[] bodyRequest;
 
     @Before
     public void beforeTest(Scenario scenario){
@@ -46,29 +48,33 @@ public class CommonStepDefinitions {
         this.url = url;
     }
 
+    @And("^a request header (.*) with value (.*)")
+    public void addHeader(String key, String value) {
+        requestOptions.setHeader(key, value);
+    }
+
     @And("^a request parameter (.*) with value (.*)")
     public void addParameter(String key, String value) {
         requestOptions.setQueryParam(key, value);
     }
 
     @And("^a request body from file (.*)")
-    public void setBodyFromFile(String srcFile){
+    public void setBodyFromFile(String srcFile) {
         File file = new File(srcFile);
         try {
-            bodyRequest = Files.readAllBytes(file.toPath());
+            requestOptions.setData(Files.readAllBytes(file.toPath()));
         } catch (Exception e) {
             System.err.println("Error reading json body file.\nFile path: "+srcFile);
         }
     }
 
     @When("^I do (.*) request")
-    public void getRequest(HttpRequestEnum requestType){
+    public void getRequest(HttpRequestEnum requestType) {
         switch (requestType) {
             case GET:
                 apiResponse = requestContext.get(url, requestOptions);
                 break;
             case POST:
-                requestOptions.setData(bodyRequest);
                 apiResponse = requestContext.post(url, requestOptions);
                 break;
             case PUT:
@@ -80,6 +86,19 @@ public class CommonStepDefinitions {
             default:
                 System.err.println("No http method introduced");
         }
+
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode postJsonResponse = objectMapper.readTree(apiResponse.body());
+            String postPrettyResponse = postJsonResponse.toPrettyString();
+            System.out.println(postPrettyResponse);
+        } catch (IOException e){
+            System.err.println("Error printing api response:\n"+e);
+        }
+
+
+
+
         // Save api response to recover it in specific step definitions
         GlobalVariables.setApiResponse(apiResponse);
     }
