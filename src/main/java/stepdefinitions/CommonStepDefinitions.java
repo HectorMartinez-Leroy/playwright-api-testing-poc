@@ -16,6 +16,9 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.junit.jupiter.api.Assertions;
 
+import java.io.File;
+import java.nio.file.Files;
+
 public class CommonStepDefinitions {
     Playwright playwright;
     APIRequest request;
@@ -23,6 +26,7 @@ public class CommonStepDefinitions {
     APIResponse apiResponse;
     RequestOptions requestOptions;
     String url = "";
+    byte[] bodyRequest;
 
     @Before
     public void beforeTest(Scenario scenario){
@@ -47,6 +51,16 @@ public class CommonStepDefinitions {
         requestOptions.setQueryParam(key, value);
     }
 
+    @And("^a request body from file (.*)")
+    public void setBodyFromFile(String srcFile){
+        File file = new File(srcFile);
+        try {
+            bodyRequest = Files.readAllBytes(file.toPath());
+        } catch (Exception e) {
+            System.err.println("Error reading json body file.\nFile path: "+srcFile);
+        }
+    }
+
     @When("^I do (.*) request")
     public void getRequest(HttpRequestEnum requestType){
         switch (requestType) {
@@ -54,6 +68,7 @@ public class CommonStepDefinitions {
                 apiResponse = requestContext.get(url, requestOptions);
                 break;
             case POST:
+                requestOptions.setData(bodyRequest);
                 apiResponse = requestContext.post(url, requestOptions);
                 break;
             case PUT:
